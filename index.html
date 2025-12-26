@@ -19,53 +19,48 @@
         .container {
             text-align: center;
             background: white;
-            padding: 40px;
+            padding: 50px;
             border-radius: 30px;
             box-shadow: 0 15px 35px rgba(255, 77, 109, 0.2);
-            max-width: 80%;
-            /* El z-index bajo asegura que los botones No puedan pasar por encima si es necesario */
-            position: relative;
-            z-index: 5; 
+            z-index: 10;
         }
 
         h1 {
             color: #ff4d6d;
             margin-bottom: 30px;
-            font-size: 1.8rem;
-            pointer-events: none; /* El texto no bloquea los clics */
+            font-size: 2rem;
         }
 
-        #btn-container {
+        .buttons {
             display: flex;
-            flex-wrap: wrap;
             justify-content: center;
-            gap: 15px;
+            gap: 30px;
         }
 
         button {
-            padding: 12px 25px;
-            font-size: 1.1rem;
+            padding: 15px 35px;
+            font-size: 1.2rem;
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            transition: all 0.2s ease;
             font-weight: bold;
+            transition: background 0.3s;
         }
 
-        .btn-si {
+        #btnSi {
             background-color: #ff4d6d;
             color: white;
-            z-index: 20;
         }
 
-        .btn-no {
+        #btnNo {
             background-color: #6c757d;
             color: white;
-            position: fixed; /* Cambiado a fixed para que se mueva por TODA la pantalla sin problemas */
-            z-index: 100; /* Siempre por encima de todo */
+            position: absolute; /* Importante para que pueda moverse por toda la pantalla */
+            transition: all 0.1s ease; /* Movimiento fluido */
+            z-index: 100;
         }
 
-        /* Ventana de mensaje */
+        /* Modal / Ventana de mensaje */
         #mensaje-final {
             display: none;
             position: fixed;
@@ -75,7 +70,7 @@
             background: white;
             padding: 30px;
             border-radius: 20px;
-            box-shadow: 0 0 100px rgba(0,0,0,0.5);
+            box-shadow: 0 0 100px rgba(0,0,0,0.3);
             z-index: 1000;
             text-align: center;
         }
@@ -84,7 +79,7 @@
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.5);
             z-index: 999;
         }
     </style>
@@ -92,62 +87,40 @@
 <body>
 
     <div class="container">
-        <h1 id="titulo">¿Es verdad que te amo más? ❤️</h1>
-        <div id="btn-container">
-            <button class="btn-si" onclick="victoria()">Sí</button>
-            <button class="btn-no" id="primer-no" style="position: static;" onmouseover="transformar(this)">No</button>
+        <h1>¿Es verdad que te amo más? ❤️</h1>
+        <div class="buttons">
+            <button id="btnSi" onclick="victoria()">Sí</button>
+            <button id="btnNo">No</button>
         </div>
     </div>
 
     <div id="overlay" class="overlay"></div>
     <div id="mensaje-final">
-        <h2 id="texto-modal">¡Viste que sí! 🥰</h2>
+        <h2>¡Viste que sí! 🥰</h2>
         <p>Sabía que lo admitirías.</p>
-        <button class="btn-si" style="position: static;" onclick="cerrar()">❤️</button>
+        <button id="btnSi" onclick="cerrar()">❤️</button>
     </div>
 
     <script>
-        let contadorNo = 0;
-        const maxIntentos = 10;
+        const btnNo = document.getElementById('btnNo');
+        let intentosNo = 0;
 
-        function transformar(boton) {
-            if (contadorNo >= maxIntentos) {
+        // Función para mover el botón NO
+        btnNo.addEventListener('mouseover', function() {
+            intentosNo++;
+
+            if (intentosNo >= 10) {
                 alert("¡No mientas! 😡");
-                return;
+                intentosNo = 0; // Reinicia el contador para que pueda seguir jugando
             }
 
-            // 1. Transformar el botón actual en un SÍ
-            boton.innerText = "Sí";
-            boton.className = "btn-si";
-            boton.style.position = "static"; // Vuelve al flujo normal
-            boton.onmouseover = null; 
-            boton.onclick = victoria;
-
-            // Moverlo dentro del contenedor blanco para que no flote por ahí
-            document.getElementById('btn-container').appendChild(boton);
-
-            // 2. Crear nuevo NO
-            contadorNo++;
-            crearNuevoNo();
-        }
-
-        function crearNuevoNo() {
-            const nuevoNo = document.createElement('button');
-            nuevoNo.innerText = "No";
-            nuevoNo.className = "btn-no";
+            // Calculamos posiciones aleatorias dentro de la ventana
+            const x = Math.random() * (window.innerWidth - btnNo.clientWidth);
+            const y = Math.random() * (window.innerHeight - btnNo.clientHeight);
             
-            // Calculamos posición evitando los bordes extremos
-            const padding = 100;
-            const x = Math.random() * (window.innerWidth - padding * 2) + padding/2;
-            const y = Math.random() * (window.innerHeight - padding * 2) + padding/2;
-            
-            nuevoNo.style.left = x + "px";
-            nuevoNo.style.top = y + "px";
-            
-            nuevoNo.onmouseover = function() { transformar(this); };
-            
-            document.body.appendChild(nuevoNo);
-        }
+            btnNo.style.left = x + 'px';
+            btnNo.style.top = y + 'px';
+        });
 
         function victoria() {
             document.getElementById('overlay').style.display = 'block';
@@ -155,7 +128,8 @@
         }
 
         function cerrar() {
-            location.reload();
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('mensaje-final').style.display = 'none';
         }
     </script>
 </body>

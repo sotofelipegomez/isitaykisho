@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Para mi amor ❤️</title>
+    <title>¿Es verdad? ❤️</title>
     <style>
         body {
             display: flex;
@@ -11,105 +11,146 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #ffe6e6;
-            font-family: 'Arial', sans-serif;
+            background-color: #fff0f3;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
-            text-align: center;
         }
 
         .container {
-            background-color: white;
-            padding: 3rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            position: relative;
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(255, 77, 109, 0.2);
+            max-width: 90%;
             z-index: 1;
         }
 
         h1 {
-            color: #d63384;
-            font-size: 2rem;
-            margin-bottom: 2rem;
+            color: #ff4d6d;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
         }
 
-        .buttons {
+        #btn-container {
             display: flex;
+            flex-wrap: wrap;
             justify-content: center;
-            gap: 20px;
+            gap: 15px;
         }
 
         button {
-            padding: 15px 30px;
-            font-size: 1.2rem;
+            padding: 12px 25px;
+            font-size: 1.1rem;
             border: none;
-            border-radius: 10px;
+            border-radius: 50px;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.3s ease;
+            font-weight: bold;
         }
 
-        #btnSi {
+        .btn-si {
             background-color: #ff4d6d;
             color: white;
+            order: -1; /* Mantiene los SÍ al principio */
         }
 
-        #btnNo {
+        .btn-no {
             background-color: #6c757d;
             color: white;
-            position: absolute;
+            position: relative;
         }
 
-        /* Estilo para la ventana modal (el aviso) */
-        .modal {
+        /* Modal / Ventana de mensaje */
+        #mensaje-final {
             display: none;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 0 50px rgba(0,0,0,0.3);
-            z-index: 100;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 100px rgba(0,0,0,0.2);
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 999;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>¿Sabías que te amo más? ❤️</h1>
-        <div class="buttons">
-            <button id="btnSi">Sí</button>
-            <button id="btnNo">No</button>
+        <h1 id="titulo">¿Es verdad que te amo más? ❤️</h1>
+        <div id="btn-container">
+            <button class="btn-si" onclick="victoria()">Sí</button>
+            <button class="btn-no" id="primer-no" onmouseover="transformar(this)">No</button>
         </div>
     </div>
 
-    <div id="miModal" class="modal">
-        <h2>¡Viste que sí! 🥰</h2>
-        <p>Sabía que estarías de acuerdo.</p>
-        <button onclick="cerrarModal()">❤️</button>
+    <div id="overlay" class="overlay"></div>
+    <div id="mensaje-final">
+        <h2 id="texto-modal">¡Viste que sí! 🥰</h2>
+        <p>Sabía que lo admitirías.</p>
+        <button class="btn-si" onclick="cerrar()">❤️</button>
     </div>
 
     <script>
-        const btnSi = document.getElementById('btnSi');
-        const btnNo = document.getElementById('btnNo');
-        const modal = document.getElementById('miModal');
+        let contadorNo = 0;
+        const maxIntentos = 10;
+        const btnContainer = document.getElementById('btn-container');
 
-        // Lógica para que el botón NO se escape
-        btnNo.addEventListener('mouseover', function() {
-            const x = Math.random() * (window.innerWidth - this.clientWidth);
-            const y = Math.random() * (window.innerHeight - this.clientHeight);
+        function transformar(boton) {
+            if (contadorNo >= maxIntentos) {
+                alert("¡No mientas! 😡");
+                // Reset opcional del contador si quieres que siga después del alert
+                return;
+            }
+
+            // 1. Transformar el botón actual en un SÍ
+            boton.innerText = "Sí";
+            boton.className = "btn-si";
+            boton.onmouseover = null; // Quitar el evento de huida
+            boton.onclick = victoria; // Ahora este botón sirve para ganar
+
+            // 2. Aumentar contador y crear un nuevo botón NO
+            contadorNo++;
+            crearNuevoNo();
+        }
+
+        function crearNuevoNo() {
+            const nuevoNo = document.createElement('button');
+            nuevoNo.innerText = "No";
+            nuevoNo.className = "btn-no";
             
-            this.style.left = x + 'px';
-            this.style.top = y + 'px';
-        });
+            // Posición aleatoria para el nuevo botón
+            const x = Math.random() * (window.innerWidth - 100);
+            const y = Math.random() * (window.innerHeight - 50);
+            
+            nuevoNo.style.position = "absolute";
+            nuevoNo.style.left = x + "px";
+            nuevoNo.style.top = y + "px";
+            
+            // Agregar el evento al nuevo botón
+            nuevoNo.onmouseover = function() { transformar(this); };
+            
+            document.body.appendChild(nuevoNo);
+        }
 
-        // Lógica para el botón SÍ
-        btnSi.addEventListener('click', function() {
-            modal.style.display = 'block';
-        });
+        function victoria() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('mensaje-final').style.display = 'block';
+        }
 
-        function cerrarModal() {
-            modal.style.display = 'none';
+        function cerrar() {
+            location.reload(); // Reinicia la página para empezar de nuevo
         }
     </script>
 </body>
